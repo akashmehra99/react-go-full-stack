@@ -38,7 +38,7 @@ export const Movies = () => {
                                     {movie.title}
                                 </Link>
                             </td>
-                            <td>{movie.releaseDate}</td>
+                            <td>{movie.release_date}</td>
                             <td>{movie.mpaa_rating}</td>
                         </tr>
                     ))}
