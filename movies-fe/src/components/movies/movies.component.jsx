@@ -11,7 +11,7 @@ export const Movies = () => {
             method: 'GET',
             headers: headers,
         };
-        fetch('http://localhost:8080/movies', requestOptions)
+        fetch('/movies', requestOptions)
             .then((res) => res.json())
             .then((data) => {
                 setMovies(data);

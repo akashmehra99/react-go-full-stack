@@ -13,15 +13,36 @@ export const Login = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        if (email === 'admin@example.com') {
-            setJwtToken('abc');
-            setAlertClassName('d-none');
-            setAlertMessage('');
-            navigate('/');
-        } else {
-            setAlertClassName('alert-danger');
-            setAlertMessage('Invalid Credentials');
-        }
+        // build the request payload
+        let payload = {
+            email: email,
+            password: password,
+        };
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify(payload),
+        };
+        fetch(`/authenticate`, requestOptions)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.error) {
+                    setAlertClassName('alert-danger');
+                    setAlertMessage('E1');
+                } else {
+                    setJwtToken(data.access_token);
+                    setAlertClassName('d-none');
+                    setAlertMessage('');
+                    navigate('/');
+                }
+            })
+            .catch((error) => {
+                setAlertClassName('alert-danger');
+                setAlertMessage('E2');
+            });
     };
     return (
         <div className="col-md-6 offset-md-3">
@@ -34,7 +55,7 @@ export const Login = () => {
                     className="form-control"
                     name="email"
                     autocomplete="email-new"
-                    onChange={(event) => setEmail(event.target.value)}
+                    onChange={(event) => setEmail(event.target.value.trim())}
                     placeholder="Enter Email"
                 />
                 <Input
@@ -49,6 +70,7 @@ export const Login = () => {
                 <input
                     type="submit"
                     className="btn btn-primary"
+                    disabled={!email || !password}
                     value={'Login'}
                 />
             </form>
