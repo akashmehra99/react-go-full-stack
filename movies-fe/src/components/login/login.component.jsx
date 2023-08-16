@@ -31,7 +31,7 @@ export const Login = () => {
             .then((data) => {
                 if (data.error) {
                     setAlertClassName('alert-danger');
-                    setAlertMessage('E1');
+                    setAlertMessage(data.message);
                 } else {
                     setJwtToken(data.access_token);
                     setAlertClassName('d-none');
@@ -41,7 +41,7 @@ export const Login = () => {
             })
             .catch((error) => {
                 setAlertClassName('alert-danger');
-                setAlertMessage('E2');
+                setAlertMessage('Something went wrong!!!');
             });
     };
     return (
