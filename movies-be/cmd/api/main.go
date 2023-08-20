@@ -13,8 +13,8 @@ import (
 const port = 8080
 
 type application struct {
-	Domain       string
 	DSN          string
+	Domain       string
 	DB           repository.DatabaseRepo
 	auth         Auth
 	JWTSecret    string
@@ -36,13 +36,12 @@ func main() {
 	flag.StringVar(&app.Domain, "domain", "example.com", "domain")
 	flag.Parse()
 
-	// connect to database
+	// connect to the database
 	conn, err := app.connectToDB()
 	if err != nil {
 		log.Fatal(err)
 	}
 	app.DB = &dbrepo.PostgresDBRepo{DB: conn}
-
 	defer app.DB.Connection().Close()
 
 	app.auth = Auth{
@@ -56,11 +55,11 @@ func main() {
 		CookieDomain:  app.CookieDomain,
 	}
 
-	log.Println("Starting application on Port ", port)
+	log.Println("Starting application on port", port)
+
 	// start a web server
 	err = http.ListenAndServe(fmt.Sprintf(":%d", port), app.routes())
 	if err != nil {
 		log.Fatal(err)
 	}
-
 }

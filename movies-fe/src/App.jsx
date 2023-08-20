@@ -1,17 +1,38 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Nav } from './components/nav/Nav.component';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert } from './components/alert/alert.component';
 
 const App = () => {
     const [jwtToken, setJwtToken] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
     const [alertClassName, setAlertClassName] = useState('d-none');
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (jwtToken === '') {
+            const requestOptions = {
+                method: 'GET',
+                credentials: 'include',
+            };
+            fetch(`/refresh`, requestOptions)
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.access_token) {
+                        setJwtToken(data.access_token);
+                    }
+                })
+                .catch((error) =>
+                    console.error('User is not logged in ', error)
+                );
+        }
+    }, [jwtToken]);
 
     const logout = () => {
         setJwtToken('');
+        navigate('/login');
     };
     return (
         <div className="conatiner m-3">
