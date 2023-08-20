@@ -2,14 +2,44 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Nav } from './components/nav/Nav.component';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert } from './components/alert/alert.component';
 
 const App = () => {
+    const navigate = useNavigate();
+
     const [jwtToken, setJwtToken] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
     const [alertClassName, setAlertClassName] = useState('d-none');
-    const navigate = useNavigate();
+    const [tickInterval, setTickInterval] = useState();
+
+    const toggleRefresh = useCallback(
+        (status) => {
+            if (status) {
+                let i = setInterval(() => {
+                    const requestOptions = {
+                        method: 'GET',
+                        credentials: 'include',
+                    };
+                    fetch(`/refresh`, requestOptions)
+                        .then((response) => response.json())
+                        .then((data) => {
+                            if (data.access_token) {
+                                setJwtToken(data.access_token);
+                            }
+                        })
+                        .catch((error) =>
+                            console.error('User is not logged in ', error)
+                        );
+                }, 600000);
+                setTickInterval(i);
+            } else {
+                clearInterval(tickInterval);
+                setTickInterval(null);
+            }
+        },
+        [tickInterval]
+    );
 
     useEffect(() => {
         if (jwtToken === '') {
@@ -22,18 +52,29 @@ const App = () => {
                 .then((data) => {
                     if (data.access_token) {
                         setJwtToken(data.access_token);
+                        toggleRefresh(true);
                     }
                 })
                 .catch((error) =>
                     console.error('User is not logged in ', error)
                 );
         }
-    }, [jwtToken]);
+    }, [jwtToken, toggleRefresh]);
 
     const logout = () => {
-        setJwtToken('');
-        navigate('/login');
+        const requestOptions = {
+            method: 'GET',
+            credentials: 'include',
+        };
+        fetch(`/logout`, requestOptions)
+            .catch((error) => console.error('Error Logging out ', error))
+            .finally(() => {
+                setJwtToken('');
+                toggleRefresh(false);
+                navigate('/login');
+            });
     };
+
     return (
         <div className="conatiner m-3">
             <div className="row">
@@ -67,6 +108,7 @@ const App = () => {
                             setJwtToken,
                             setAlertClassName,
                             setAlertMessage,
+                            toggleRefresh,
                         }}
                     />
                 </div>
