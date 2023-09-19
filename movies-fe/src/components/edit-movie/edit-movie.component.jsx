@@ -94,7 +94,8 @@ export const EditMovie = () => {
             }
         });
 
-        if (movie.genres_array.length) {
+        if (!movie.genres_array.length) {
+            errors.push('genres');
         }
 
         setErrors(errors);
@@ -197,6 +198,9 @@ export const EditMovie = () => {
                 />
                 <hr />
                 <h3>Genres</h3>
+                <div className={hasError('genres') ? 'text-danger' : 'd-none'}>
+                    Select atlease one genre
+                </div>
                 {movie.genres && movie.genres.length > 1 && (
                     <>
                         {Array.from(movie.genres).map((g, index) => (
